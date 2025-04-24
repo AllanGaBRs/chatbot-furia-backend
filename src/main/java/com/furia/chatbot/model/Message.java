@@ -1,7 +1,7 @@
 package com.furia.chatbot.model;
 
 public class Message {
-    
+
     private String sender;
     private String text;
 
