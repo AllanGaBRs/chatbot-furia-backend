@@ -2,10 +2,14 @@ package com.furia.chatbot.controller;
 
 import com.furia.chatbot.model.Message;
 import com.furia.chatbot.service.ChatService;
+import com.furia.chatbot.service.FuriaService;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/chat")
+@RequestMapping("/api/chat")
 public class ChatController {
 
     private final ChatService chatbotService;
