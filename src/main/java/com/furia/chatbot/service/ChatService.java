@@ -27,6 +27,7 @@ public class ChatService {
         commandMap.put("tchau", this::handleGoodbye);
         commandMap.put("nicknames", this::handlePlayers);
         commandMap.put("novidades", this::handleNews);
+
     }
 
     public Message getBotResponse(Message userMessage) {
@@ -34,22 +35,32 @@ public class ChatService {
 
         if(userText.contains("jogadores")){
             List<Map<String, Object>> players = furiaService.getPlayerInfo();
-            return new Message("bot", "Aqui estão os jogadores: ", players);
+            return new Message("bot", "Aqui estão os jogadores: ", players, null);
+        }
+        if(userText.contains("partidas")){
+            List<Map<String, Object>> matches = furiaService.getFutureMatches();
+            return new Message("bot", "partidas: ", null, matches);
         }
 
         for (Map.Entry<String, Function<String, String>> entry : commandMap.entrySet()) {
             if (userText.contains(entry.getKey())) {
                 String botReply = entry.getValue().apply(userText);
 
-                return new Message("bot", botReply, null);
+                return new Message("bot", botReply, null, null);
             }
         }
 
-        return new Message("bot", "Desculpe, não entendi sua pergunta. Pode reformular?", null);
+        return new Message("bot", "Desculpe, não entendi sua pergunta. Pode reformular?", null, null);
     }
 
     private String handleFuria(String userText) {
-        return "VAIII FURIAAAA!";
+        return "Uma organização de esports que nasceu do desejo de " +
+                "representar o Brasil no CS e conquistou muito mais que isso: " +
+                "expandimos nossas ligas, disputamos os principais títulos, " +
+                "adotamos novos objetivos e ganhamos um propósito maior. " +
+                "Somos muito mais que o sucesso competitivo. " +
+                "Somos um movimento sociocultural!! " +
+                "VAI FURIIAAAAAAA!!!";
     }
 
     private String handleGoodbye(String userText) {

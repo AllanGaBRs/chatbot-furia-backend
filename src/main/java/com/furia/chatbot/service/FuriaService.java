@@ -77,9 +77,44 @@ public class FuriaService {
                 })
                 .map(player -> {
                     Map<String, Object> info = new HashMap<>();
-                    info.put("nickname", (String) player.get("nickname"));
+                    info.put("fullname", (String) player.get("fullname"));
                     info.put("image", (String) player.get("image"));
                     return info;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<Map<String, Object>> getFutureMatches(){
+        String url = BASE_URL + "/matches.json";
+
+        ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                new HttpEntity<>(new HttpHeaders()),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        List<Map<String, Object>> matches = response.getBody();
+        System.out.println("matches " + matches);
+        return matches.stream()
+                .filter(match -> {
+                    List<Map<String, Object>> teams = (List<Map<String, Object>>) match.get("teams");
+
+                    return teams.stream().anyMatch(team ->
+                            "FURIA Academy".equalsIgnoreCase(((String) team.get("name")).trim())
+                    );
+                })
+                .flatMap(match -> {
+                    List<Map<String, Object>> teams = (List<Map<String, Object>>) match.get("teams");
+
+                    return teams.stream()
+                            .map(team -> {
+                                Map<String, Object> teamInfo = new HashMap<>();
+                                teamInfo.put("name", team.get("name"));
+                                teamInfo.put("logo", team.get("logo"));
+                                return teamInfo;
+                            });
                 })
                 .collect(Collectors.toList());
     }
