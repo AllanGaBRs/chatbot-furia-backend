@@ -20,6 +20,8 @@ public class ChatService {
 
     private Map<String, Function<String, String>> commandMap;
 
+    private final String options = "\"nicknames\", \"novidades\", \"jogadores\", \"partidas\", \"furia\"";
+
     public ChatService() {
         commandMap = new HashMap<>();
 
@@ -33,13 +35,17 @@ public class ChatService {
     public Message getBotResponse(Message userMessage) {
         String userText = userMessage.getText().toLowerCase();
 
+        Message greetingResponse = handleGreetings(userText);
+        if (greetingResponse != null) {
+            return greetingResponse;
+        }
         if(userText.contains("jogadores")){
             List<Map<String, Object>> players = furiaService.getPlayerInfo();
             return new Message("bot", "Aqui estão os jogadores: ", players, null);
         }
         if(userText.contains("partidas")){
             List<Map<String, Object>> matches = furiaService.getFutureMatches();
-            return new Message("bot", "partidas: ", null, matches);
+            return new Message("bot", "Proxímas partidas: ", null, matches);
         }
 
         for (Map.Entry<String, Function<String, String>> entry : commandMap.entrySet()) {
@@ -50,7 +56,7 @@ public class ChatService {
             }
         }
 
-        return new Message("bot", "Desculpe, não entendi sua pergunta. Pode reformular?", null, null);
+        return new Message("bot", "Desculpe, não entendi digita uma dessas que eu te mando " + options, null, null);
     }
 
     private String handleFuria(String userText) {
@@ -74,8 +80,34 @@ public class ChatService {
 
     private String handleNews(String userText) {
         List<Map<String, Object>> news = furiaService.getInfo();
-        return formatResponse(news);
+        return "As novidades são essas meu mano: " + formatResponse(news);
     }
+    private Message handleGreetings(String userText) {
+        userText = userText.toLowerCase().trim();
+
+        if (userText.matches(".*\\b(fala+|opa+|ae+|eae+|eai+|yo+|hey+)\\b.*")) {
+            return new Message("bot", "Eae, firmeza? 👊 Qual vai ser a boa? " + options, null, null);
+        }
+
+        if (userText.matches(".*\\b(oi+|ol[aá]+|bom dia+|boa tarde+|boa noite+|al[oóô]+|alo+)\\b.*")) {
+            return new Message("bot", "Olá! Como posso te ajudar hoje? "  + options, null, null);
+        }
+
+        if (userText.matches(".*\\b(salve+|saaalve+|to na [áa]rea+|cheguei+|presente+)\\b.*")) {
+            return new Message("bot", "Chegou o brabo, manda aí o que tá querendo 😎 " + options, null, null);
+        }
+
+        if (userText.matches(".*\\b(tudo bem+|td bem+|como vai+|como vc ta+|como c[êe]+ ta+)\\b.*")) {
+            return new Message("bot", "Tudo certo por aqui! E você, tranquilo? O quer que eu te mostre? "  + options, null, null);
+        }
+
+        if(userText.matches(".*\\b(valeu|vlw|obrigado|obrigada|tmj|agradecid[ao]|gratid[aã]o|muito obrigado|brigad[ao]|tks|thanks)\\b.*")){
+            return new Message("bot", "Tamo Junto, se precisar de mais alguma coisa so digitar " + options, null, null);
+        }
+
+        return null;
+    }
+
 
     private String buildPlayerListResponse(List<String> nicknames) {
         if (nicknames.isEmpty()) {
