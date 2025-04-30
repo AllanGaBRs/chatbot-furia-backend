@@ -1,8 +1,10 @@
 package com.furia.chatbot.service;
 
+import com.fasterxml.jackson.databind.deser.BuilderBasedDeserializer;
 import com.furia.chatbot.model.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,33 +23,33 @@ public class ChatService {
     public ChatService() {
         commandMap = new HashMap<>();
 
-        commandMap.put("olá", this::handleGreeting);
-        commandMap.put("oi", this::handleGreeting);
         commandMap.put("furia", this::handleFuria);
         commandMap.put("tchau", this::handleGoodbye);
-        commandMap.put("joagdores", this::handlePlayers);
+        commandMap.put("nicknames", this::handlePlayers);
         commandMap.put("novidades", this::handleNews);
     }
 
     public Message getBotResponse(Message userMessage) {
         String userText = userMessage.getText().toLowerCase();
 
+        if(userText.contains("jogadores")){
+            List<Map<String, Object>> players = furiaService.getPlayerInfo();
+            return new Message("bot", "Aqui estão os jogadores: ", players);
+        }
+
         for (Map.Entry<String, Function<String, String>> entry : commandMap.entrySet()) {
             if (userText.contains(entry.getKey())) {
                 String botReply = entry.getValue().apply(userText);
-                return new Message("bot", botReply);
+
+                return new Message("bot", botReply, null);
             }
         }
 
-        return new Message("bot", "Desculpe, não entendi sua pergunta. Pode reformular?");
-    }
-
-    private String handleGreeting(String userText) {
-        return "Olá! Como posso ajudar você hoje?";
+        return new Message("bot", "Desculpe, não entendi sua pergunta. Pode reformular?", null);
     }
 
     private String handleFuria(String userText) {
-        return "Ah, a FURIA! Um grande time! Como posso ajudar com informações sobre a FURIA?";
+        return "VAIII FURIAAAA!";
     }
 
     private String handleGoodbye(String userText) {
@@ -55,13 +57,13 @@ public class ChatService {
     }
 
     private String handlePlayers(String userText) {
-        List<String> nicknames = furiaService.getNicknames();
-        return buildPlayerListResponse(nicknames);
+        List<String> players = furiaService.getNicknames();
+        return buildPlayerListResponse(players);
     }
 
     private String handleNews(String userText) {
         List<Map<String, Object>> news = furiaService.getInfo();
-        return formatNewsResponse(news);
+        return formatResponse(news);
     }
 
     private String buildPlayerListResponse(List<String> nicknames) {
@@ -71,9 +73,9 @@ public class ChatService {
         return "Jogadores da FURIA: " + String.join(", ", nicknames);
     }
 
-    private String formatNewsResponse(List<Map<String, Object>> news) {
+    private String formatResponse(List<Map<String, Object>> news) {
         if (news.isEmpty()) {
-            return "Não há novidades no momento.";
+            return "Sem dados no momento.";
         }
 
         List<String> response = news.stream()

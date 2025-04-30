@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,8 +36,12 @@ public class FuriaService {
         String url = BASE_URL + "/player.json";
 
         ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
-                url, HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), new ParameterizedTypeReference<>() {
-                });
+                url,
+                HttpMethod.GET,
+                new HttpEntity<>(new HttpHeaders()),
+                new ParameterizedTypeReference<>() {
+                }
+        );
 
         List<Map<String, Object>> players = response.getBody();
 
@@ -46,6 +51,35 @@ public class FuriaService {
                     List<Map<String, Object>> playerList = (List<Map<String, Object>>) player.get("players");
                     return playerList.stream()
                             .map(p -> (String) p.get("nickname"));
+                })
+                .collect(Collectors.toList());
+    }
+
+
+    public List<Map<String, Object>> getPlayerInfo() {
+        String url = BASE_URL + "/player.json";
+
+        ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                new HttpEntity<>(new HttpHeaders()),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+
+        List<Map<String, Object>> teams = response.getBody();
+
+        return teams.stream()
+                .filter(team -> "FURIA".equalsIgnoreCase((String) team.get("name")))
+                .flatMap(team -> {
+                    List<Map<String, Object>> players = (List<Map<String, Object>>) team.get("players");
+                    return players.stream();
+                })
+                .map(player -> {
+                    Map<String, Object> info = new HashMap<>();
+                    info.put("nickname", (String) player.get("nickname"));
+                    info.put("image", (String) player.get("image"));
+                    return info;
                 })
                 .collect(Collectors.toList());
     }
