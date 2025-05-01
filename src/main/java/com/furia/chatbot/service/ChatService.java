@@ -26,7 +26,6 @@ public class ChatService {
         commandMap = new HashMap<>();
 
         commandMap.put("furia", this::handleFuria);
-        commandMap.put("tchau", this::handleGoodbye);
         commandMap.put("nicknames", this::handlePlayers);
         commandMap.put("novidades", this::handleNews);
 
@@ -41,11 +40,11 @@ public class ChatService {
         }
         if(userText.contains("jogadores")){
             List<Map<String, Object>> players = furiaService.getPlayerInfo();
-            return new Message("bot", "Aqui estão os jogadores: ", players, null);
+            return new Message("bot", "Aqui os brabooos ", players, null);
         }
         if(userText.contains("partidas")){
             List<Map<String, Object>> matches = furiaService.getFutureMatches();
-            return new Message("bot", "Proxímas partidas: ", null, matches);
+            return new Message("bot", "Proxímas partidas que a furia vai arrebentaar 💪💪 ", null, matches);
         }
 
         for (Map.Entry<String, Function<String, String>> entry : commandMap.entrySet()) {
@@ -56,7 +55,7 @@ public class ChatService {
             }
         }
 
-        return new Message("bot", "Desculpe, não entendi digita uma dessas que eu te mando " + options, null, null);
+        return new Message("bot", "Foi mal, mas não entendi!🤣 digita uma dessas que eu te mando sem enrolação! " + options, null, null);
     }
 
     private String handleFuria(String userText) {
@@ -69,9 +68,6 @@ public class ChatService {
                 "VAI FURIIAAAAAAA!!!";
     }
 
-    private String handleGoodbye(String userText) {
-        return "Tchau! Até logo!";
-    }
 
     private String handlePlayers(String userText) {
         List<String> players = furiaService.getNicknames();
@@ -80,7 +76,7 @@ public class ChatService {
 
     private String handleNews(String userText) {
         List<Map<String, Object>> news = furiaService.getInfo();
-        return "As novidades são essas meu mano: " + formatResponse(news);
+        return "Vou mandar em inglês mesmo pq sei que tu é craque!! pega as boas ai 🤪 <br><br>" + formatResponse(news);
     }
     private Message handleGreetings(String userText) {
         userText = userText.toLowerCase().trim();
@@ -105,23 +101,27 @@ public class ChatService {
             return new Message("bot", "Tamo Junto, se precisar de mais alguma coisa so digitar " + options, null, null);
         }
 
+        if(userText.matches(".*\\b(falou|flw|tchau|xau|até mais|ate[é] logo|até breve|até|\\+1|fui|adeus|nos vemos|see you|bye|bye bye|t+e+ +m+a+i+s*)\\b.*")){
+            return new Message("bot", "Flwww, mas cola mais por aqui, em breve teremos novidades!!", null, null);
+        }
+
         return null;
     }
 
 
     private String buildPlayerListResponse(List<String> nicknames) {
         if (nicknames.isEmpty()) {
-            return "Atualmente, não há jogadores da FURIA disponíveis.";
+            return "No momento não há jogadores da FURIA disponíveis. Estou com problemas internos 😶";
         }
-        return "Jogadores da FURIA: " + String.join(", ", nicknames);
+        return "Aqui o nick dos braboss, mas digita \"jogadores\" que te mando algumas coisas a mais 😎 <br> " + String.join(", ", nicknames);
     }
 
-    private String formatResponse(List<Map<String, Object>> news) {
-        if (news.isEmpty()) {
-            return "Sem dados no momento.";
+    private String formatResponse(List<Map<String, Object>> text) {
+        if (text.isEmpty()) {
+            return "Sem dados por agora! Quem sabe mais tarde ✌️";
         }
 
-        List<String> response = news.stream()
+        List<String> response = text.stream()
                 .flatMap(map -> map.values().stream())
                 .map(Object::toString)
                 .collect(Collectors.toList());
