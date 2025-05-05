@@ -1,1 +1,5 @@
-spring.application.name=chatbot
+spring:
+  application:
+    name: chatbot
+  api:
+    url: ${FRONT_URL}
